@@ -7,6 +7,10 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+torch = "^2.5.1"
+torchaudio = "^2.5.1"
+transformers = "^4.46.2"
+soundfile = "^0.12.1"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -19,3 +23,36 @@ isort = "^5.13.2"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+force_single_line = true
+atomic = true
+include_trailing_comma = true
+lines_after_imports = 2
+lines_between_types = 1
+use_parentheses = true
+skip_glob = ["*/setup.py"]
+
+[tool.black]
+line-length = 79
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | docs
+  | tests/.*/setup.py
+  | phonometrics/transcription/phoneme/*.*
+)/
+'''
+
+[tool.mypy]
+exclude = ['phonometrics/transcription/phoneme/*.*']
