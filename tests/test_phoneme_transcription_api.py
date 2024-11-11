@@ -1,4 +1,3 @@
-from distutils.command.config import config
 from pathlib import Path
 
 import pytest
@@ -7,9 +6,10 @@ import yaml
 
 
 @pytest.mark.integration
-def test_phoneme_api(sample_audio_data):
+def test_phoneme_api(sample_audio_data, tests_directory):
     # Define the URL for the API endpoint
-    with open("config.yaml", "r") as f:
+    path_to_config = tests_directory / "../config.yaml"
+    with open(path_to_config, "r") as f:
         config = yaml.safe_load(f)
     url = config["transcription_service_url"]
     # Determine the current directory and path to the input file

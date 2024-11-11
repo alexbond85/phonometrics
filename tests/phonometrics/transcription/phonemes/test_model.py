@@ -3,7 +3,7 @@ import os
 from transformers import AutoModelForCTC
 from transformers import AutoProcessor
 
-from phonometrics.transcription.phoneme.model import TranscriptionModel
+from phonometrics.transcription.phonemes.model import TranscriptionModel
 
 
 def test_transcription_model():

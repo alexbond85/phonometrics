@@ -7,8 +7,8 @@ import torchaudio
 from transformers import AutoModelForCTC
 from transformers import AutoProcessor
 
-from phonometrics.transcription.phoneme.decoder import GreedyDecoder
-from phonometrics.transcription.phoneme.tokens import TokenSet
+from phonometrics.transcription.phonemes.decoder import GreedyDecoder
+from phonometrics.transcription.phonemes.tokens import TokenSet
 
 
 class Waveform:

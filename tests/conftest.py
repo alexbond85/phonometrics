@@ -16,3 +16,8 @@ def sample_audio_data():
         "transcription": transcription,
         "transcription_words": transcription_words,
     }
+
+
+@pytest.fixture
+def tests_directory():
+    return Path(__file__).parent

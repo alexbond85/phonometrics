@@ -10,7 +10,7 @@ from typing import Union
 import numpy as np
 import torch
 
-from phonometrics.transcription.phoneme.tokens import TokenSet
+from phonometrics.transcription.phonemes.tokens import TokenSet
 
 
 class Decoder:
