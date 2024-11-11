@@ -13,8 +13,6 @@ def test_local_whisper_model(sample_audio_data):
     assert expected_transcription == computed_transcription
 
 
-
-
 def test_local_whisper_model_from_waveform(sample_audio_data):
     # Initialize the LocalWhisperModel with "medium" size
     model = LocalWhisperModel(model_size="medium")
