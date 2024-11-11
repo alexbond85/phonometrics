@@ -2,7 +2,7 @@
 name = "phonometrics"
 version = "0.0.1"
 description = ""
-authors = ["alexbond <sascha.bondarenko@gmail.com>"]
+authors = ["Alexander Bondarenko <sascha.bondarenko@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
