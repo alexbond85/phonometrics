@@ -1,6 +1,9 @@
+import pytest
+
 from phonometrics.transcription.words.whisper_openai import OpenAIWhisperModel
 
 
+@pytest.mark.skip(reason="OpenAI API key required")
 def test_openai_whisper_model(sample_audio_data):
     # Initialize the LocalWhisperModel
     model = OpenAIWhisperModel()

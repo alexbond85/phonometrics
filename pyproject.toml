@@ -21,6 +21,8 @@ llvmlite = "0.43.0"
 numba = "0.60.0"
 openai-whisper = "^20240930"
 python-dotenv = "^1.0.1"
+praat-parselmouth = "^0.4.5"
+matplotlib = "^3.9.2"
 
 
 [tool.poetry.group.dev.dependencies]

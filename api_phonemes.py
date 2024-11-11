@@ -2,11 +2,16 @@ import io
 import logging
 
 import torchaudio  # type: ignore
-from fastapi import FastAPI, File, UploadFile
+
+from fastapi import FastAPI
+from fastapi import File
+from fastapi import UploadFile
 from fastapi.responses import JSONResponse
 from transformers import AutoModelForCTC  # type: ignore
 from transformers import AutoProcessor
-from phonometrics.transcription.phoneme.model import TranscriptionModel
+
+from phonometrics.transcription.phonemes.model import TranscriptionModel
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -34,10 +39,14 @@ async def transcribe(file: UploadFile = File(...)):
     # Load audio data using torchaudio
     audio_file = io.BytesIO(audio_bytes)
     audio_waveform, sample_rate = torchaudio.load(audio_file)
-    logger.info(f"Audio data loaded: sample rate = {sample_rate}, waveform shape = {audio_waveform.shape}")
+    logger.info(
+        f"Audio data loaded: sample rate = {sample_rate}, waveform shape = {audio_waveform.shape}"
+    )
 
     # Transcribe audio
-    transcription = transcriber.transcribe_from_waveform(audio_waveform, sample_rate)
+    transcription = transcriber.transcribe_from_waveform(
+        audio_waveform, sample_rate
+    )
     logger.info("Transcription completed.")
 
     # Return the transcription as JSON

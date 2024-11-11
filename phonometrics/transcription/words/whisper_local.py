@@ -1,6 +1,7 @@
 from typing import Dict
 
 import torch
+import torchaudio  # type: ignore
 import whisper  # type: ignore
 
 from phonometrics.transcription.words.model import WordsTranscriptionModel
@@ -59,5 +60,39 @@ class LocalWhisperModel(WordsTranscriptionModel):
         NumPy array, and transcribed by the Whisper model.
         """
         result = self.model.transcribe(file_path)
+        transcription = result.get("text", "")
+        return {"transcription": transcription}
+
+    def transcribe_from_waveform(
+        self, waveform, sample_rate
+    ) -> Dict[str, str]:
+        """
+        Transcribes audio from a waveform using the Whisper model.
+
+        Parameters
+        ----------
+        waveform : Tensor
+            The audio waveform tensor.
+        sample_rate : int
+            The sample rate of the audio.
+
+        Returns
+        -------
+        Dict[str, str]
+            A dictionary containing the transcription text.
+        """
+        # Resample the audio to Whisper's required sample rate if necessary
+        if sample_rate != 16000:
+            waveform = torchaudio.transforms.Resample(
+                orig_freq=sample_rate, new_freq=16000
+            )(waveform)
+
+        # Convert to mono if it's stereo by averaging channels
+        if waveform.shape[0] > 1:
+            waveform = waveform.mean(dim=0)
+
+        # Convert waveform to a numpy array with shape (samples,)
+        audio_np = waveform.numpy().flatten()
+        result = self.model.transcribe(audio_np)
         transcription = result.get("text", "")
         return {"transcription": transcription}

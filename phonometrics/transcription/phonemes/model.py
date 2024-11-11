@@ -262,7 +262,7 @@ class TranscriptionModel:
             logits = self._model(inputs.input_values).logits
         return logits
 
-    def _decode(self, logits):
+    def _decode(self, logits) -> dict:
         """Decodes the model's logits into a transcription.
 
         Parameters
@@ -272,12 +272,12 @@ class TranscriptionModel:
 
         Returns
         -------
-        str
+        dict
             The decoded transcription.
         """
         return self._decoder(logits)[0]
 
-    def transcribe_from_waveform(self, waveform: torch.Tensor, sample_rate: int) -> str:
+    def transcribe_from_waveform(self, waveform: torch.Tensor, sample_rate: int) -> dict:
         """Transcribes the given audio waveform.
 
         Parameters
@@ -289,7 +289,7 @@ class TranscriptionModel:
 
         Returns
         -------
-        str
+        dict
             The transcription of the audio.
         """
         if sample_rate != 16000:
