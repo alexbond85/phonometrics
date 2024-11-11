@@ -1,5 +1,8 @@
 import os
-from transformers import AutoModelForCTC, AutoProcessor
+
+from transformers import AutoModelForCTC
+from transformers import AutoProcessor
+
 from phonometrics.transcription.phoneme.model import TranscriptionModel
 
 
