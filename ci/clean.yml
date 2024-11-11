@@ -1,0 +1,11 @@
+version: "3"
+
+tasks:
+  delete_cache_files:
+    cmds:
+      - echo "Deleting cached files."
+      - find . -name '*.pyc' -delete
+      - find . -name '__pycache__' -type d | xargs rm -fr
+      - find . -name '.pytest_cache' -type d | xargs rm -fr
+      - rm -fr .mypy_cache
+      - find . -name '.coverage' -delete

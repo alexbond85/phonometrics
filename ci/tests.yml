@@ -1,0 +1,14 @@
+version: "3"
+
+tasks:
+  run_pytest:
+    cmds:
+      - pytest
+
+  run_unit_tests:
+    cmds:
+      - pytest -m "not integration"
+
+  run_integration_tests:
+    cmds:
+      - pytest -m "integration"

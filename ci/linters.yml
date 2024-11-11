@@ -1,0 +1,13 @@
+version: "3"
+
+
+tasks:
+  mypy:
+    - mypy $PACKAGE
+  black:
+    - black --check $PACKAGE tests
+  isort:
+    - isort --check $PACKAGE tests
+  flake8:
+    - flake8 $PACKAGE
+#    - flake8 --format=html --htmldir=flake-report $PROJ    -

@@ -1,0 +1,40 @@
+version: '3'
+
+dotenv: ['ci/.taskenv']
+
+
+includes:
+  clean: ./ci/clean.yml
+  format: ./ci/format.yml
+  tests: ./ci/tests.yml
+  linters: ./ci/linters.yml
+
+
+tasks:
+
+  init:
+    cmds:
+      - |
+        poetry config virtualenvs.path .virtualenv
+        poetry env use python3.11
+        poetry install
+
+  clean:
+    - task: clean:delete_cache_files
+
+  format:
+    - task: format:format_code
+
+  tests:
+    - task: tests:run_unit_tests
+
+  lint:
+    - task: linters:black
+    - task: linters:mypy
+    - task: linters:flake8
+    - task: linters:isort
+
+  default:
+    - task: format
+    - task: lint
+    - task: tests
