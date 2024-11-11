@@ -1,0 +1,5 @@
+.env
+tests/
+.git
+__pycache__
+*.pyc

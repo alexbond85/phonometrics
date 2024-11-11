@@ -14,6 +14,12 @@ soundfile = "^0.12.1"
 fastapi = "^0.115.4"
 uvicorn = "^0.32.0"
 python-multipart = "^0.0.17"
+pyyaml = "^6.0.2"
+openai = "^1.54.3"
+ffmpeg-python = "^0.2.0"
+llvmlite = "0.43.0"
+numba = "0.60.0"
+openai-whisper = "^20240930"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -59,3 +65,9 @@ exclude = '''
 
 [tool.mypy]
 exclude = ['phonometrics/transcription/phoneme/*.*']
+
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: requires running docker container"
+]
