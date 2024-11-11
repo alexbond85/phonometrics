@@ -1,1 +1,3 @@
-transcription_service_url: "http://localhost:8000/"
+transcription_service_url: "http://localhost:8000/transcribe/phonemes"
+word_transcription_service_url: "http://localhost:8000/transcribe/words"
+audio_folder: "audio_files"

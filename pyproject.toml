@@ -13,7 +13,7 @@ transformers = "^4.46.2"
 soundfile = "^0.12.1"
 fastapi = "^0.115.4"
 uvicorn = "^0.32.0"
-python-multipart = "^0.0.17"
+python-multipart = "^0.0.12"
 pyyaml = "^6.0.2"
 openai = "^1.54.3"
 ffmpeg-python = "^0.2.0"
@@ -23,6 +23,7 @@ openai-whisper = "^20240930"
 python-dotenv = "^1.0.1"
 praat-parselmouth = "^0.4.5"
 matplotlib = "^3.9.2"
+gradio = "5.5.0"
 
 
 [tool.poetry.group.dev.dependencies]

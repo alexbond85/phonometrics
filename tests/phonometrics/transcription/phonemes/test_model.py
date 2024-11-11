@@ -1,5 +1,3 @@
-import os
-
 from transformers import AutoModelForCTC
 from transformers import AutoProcessor
 

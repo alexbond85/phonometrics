@@ -24,8 +24,16 @@ def tests_directory():
 
 
 @pytest.fixture
-def api_url(tests_directory):
+def transcription_service_url(tests_directory):
     path_to_config = tests_directory / "../config.yaml"
     with open(path_to_config, "r") as f:
         config = yaml.safe_load(f)
     return config["transcription_service_url"]
+
+
+@pytest.fixture
+def word_transcription_service_url(tests_directory):
+    path_to_config = tests_directory / "../config.yaml"
+    with open(path_to_config, "r") as f:
+        config = yaml.safe_load(f)
+    return config["word_transcription_service_url"]
