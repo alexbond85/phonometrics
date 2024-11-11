@@ -1,7 +1,6 @@
 import yaml
 import os
 import re
-import mimetypes
 import requests
 import io
 import numpy as np
@@ -74,7 +73,7 @@ def process_audio_file(selected_file):
 
 
 def process_recorded_audio(audio):
-    y, sr = audio
+    sr, y = audio
     print(f"Recorded audio: {y.shape[0]} samples, {sr} Hz")
 
     # Write it to bytes
