@@ -6,16 +6,12 @@ from transformers import AutoProcessor
 from phonometrics.transcription.phonemes.model import TranscriptionModel
 
 
-def test_transcription_model():
+def test_transcription_model(sample_audio_data):
     """Tests the AudioTranscriber class for correct transcription and output
     validation.
     """
     # Initialize paths and model
-    current_folder = os.path.dirname(os.path.abspath(__file__))
-    root_folder = os.path.abspath(
-        os.path.join(current_folder, "../../..")
-    )
-    path_to_audio = os.path.join(root_folder, "data/billet.mp3")
+    path_to_audio = sample_audio_data["path"]
     # Model setup
     model_name = "Cnam-LMSSC/wav2vec2-french-phonemizer"
     processor = AutoProcessor.from_pretrained(model_name)
@@ -26,7 +22,7 @@ def test_transcription_model():
     result = audio_transcriber.transcribe_from_file(path_to_audio)
 
     # Assertions
-    expected_transcription = 'ɛl vøt alɛt o kɔ̃sɛʁ mɛz ɛl na pa də bijɛ'
+    expected_transcription = sample_audio_data["transcription_phonemes"]
     assert result["transcription"] == expected_transcription, (
         f"Expected transcription '{expected_transcription}', but got "
         f"'{result['transcription']}'"
