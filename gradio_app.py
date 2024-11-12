@@ -116,7 +116,7 @@ def plot_waveform_and_pitch(y, sr, phonemes_transcription):
 audio_files = list_audio_files(app_config.audio_files_path())
 
 with gr.Blocks() as demo:
-    gr.Markdown('# Audio Navigation and Record App')
+    gr.Markdown('# Accent Reduction App')
     gr.Markdown('Navigate through audio files or record your voice for analysis and practice.')
 
     # Initialize current index and reference transcriptions as state variables
