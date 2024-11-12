@@ -24,6 +24,7 @@ python-dotenv = "^1.0.1"
 praat-parselmouth = "^0.4.5"
 matplotlib = "^3.9.2"
 gradio = "5.5.0"
+termcolor = "^2.5.0"
 
 
 [tool.poetry.group.dev.dependencies]

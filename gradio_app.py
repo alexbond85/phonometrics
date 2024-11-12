@@ -1,3 +1,5 @@
+from ast import Index
+
 import yaml
 import os
 import re
@@ -8,6 +10,8 @@ import gradio as gr
 import soundfile as sf
 from phonometrics.vizualize.plot import WaveformPlotBuilder
 from phonometrics.audio_processing.pitch import extract_pitch
+from phonometrics.evaluate.diff import evaluate_and_display, display_differences
+from phonometrics.evaluate.diff import tokenize_phonemes_with_spaces
 
 # Load configuration
 with open("config.yaml", "r") as f:
@@ -15,6 +19,7 @@ with open("config.yaml", "r") as f:
 
 # Use the URLs from the configuration
 phoneme_transcription_service_url = config.get("transcription_service_url")
+word_transcription_service_url = config.get("openai_word_transcription_service_url")
 audio_folder = config.get("audio_folder", "frenchphrases/output_segments")  # Replace with your folder path
 
 
@@ -37,12 +42,21 @@ def process_audio_file(selected_file):
 
     # Send the audio file to the phoneme transcription service
     try:
-        response = requests.post(phoneme_transcription_service_url, files=files)
-        response.raise_for_status()
-        transcription = response.json()
+        response_phonemes = requests.post(phoneme_transcription_service_url, files=files)
+        response_phonemes.raise_for_status()
+        transcription_phonemes = response_phonemes.json()
     except requests.exceptions.RequestException as e:
-        print(f"Error contacting transcription service: {e}")
-        transcription = {'transcription': ''}
+        print(f"Error contacting phoneme transcription service: {e}")
+        transcription_phonemes = {'transcription': ''}
+
+    # Send the audio file to the word transcription service
+    try:
+        response_words = requests.post(word_transcription_service_url, files=files)
+        response_words.raise_for_status()
+        transcription_words = response_words.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error contacting word transcription service: {e}")
+        transcription_words = {'transcription': ''}
 
     # Load audio data using soundfile
     audio_file = io.BytesIO(audio_bytes)
@@ -56,10 +70,9 @@ def process_audio_file(selected_file):
     pitch = extract_pitch(y, sr)
 
     # Draw waveform, pitch, and transcription
-
     fig = (WaveformPlotBuilder("Reference")
            .with_pitch(pitch)
-           .with_transcription(transcription)
+           .with_transcription(transcription_phonemes)
            .with_waveform(y, sr)
            .build())
 
@@ -68,8 +81,8 @@ def process_audio_file(selected_file):
     img_array = np.frombuffer(fig.canvas.tostring_rgb(), dtype='uint8')
     img_array = img_array.reshape(fig.canvas.get_width_height()[::-1] + (3,))
 
-    # Return audio file path, transcription, and image array
-    return file_path, transcription.get('transcription', ''), img_array
+    # Return audio file path, transcriptions, and image array
+    return file_path, transcription_phonemes.get('transcription', ''), transcription_words.get('transcription', ''), img_array
 
 
 def process_recorded_audio(audio):
@@ -90,12 +103,21 @@ def process_recorded_audio(audio):
 
     # Send the audio to the phoneme transcription service
     try:
-        response = requests.post(phoneme_transcription_service_url, files=files)
-        response.raise_for_status()
-        transcription = response.json()
+        response_phonemes = requests.post(phoneme_transcription_service_url, files=files)
+        response_phonemes.raise_for_status()
+        transcription_phonemes = response_phonemes.json()
     except requests.exceptions.RequestException as e:
-        print(f"Error contacting transcription service: {e}")
-        transcription = {'transcription': ''}
+        print(f"Error contacting phoneme transcription service: {e}")
+        transcription_phonemes = {'transcription': ''}
+
+    # Send the audio to the word transcription service
+    try:
+        response_words = requests.post(word_transcription_service_url, files=files)
+        response_words.raise_for_status()
+        transcription_words = response_words.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error contacting word transcription service: {e}")
+        transcription_words = {'transcription': ''}
 
     # Extract pitch
     pitch = extract_pitch(y, sr)
@@ -103,7 +125,7 @@ def process_recorded_audio(audio):
     # Draw waveform, pitch, and transcription
     fig = (WaveformPlotBuilder("Recorded Voice")
               .with_pitch(pitch)
-           .with_transcription(transcription)
+           .with_transcription(transcription_phonemes)
               .with_waveform(y, sr)
                 .build())
     # Convert Matplotlib figure to image array
@@ -111,8 +133,9 @@ def process_recorded_audio(audio):
     img_array = np.frombuffer(fig.canvas.tostring_rgb(), dtype='uint8')
     img_array = img_array.reshape(fig.canvas.get_width_height()[::-1] + (3,))
 
-    # Return transcription and image array
-    return transcription.get('transcription', ''), img_array
+    # Return transcriptions and image array
+    return transcription_phonemes.get('transcription', ''), transcription_words.get('transcription', ''), img_array
+
 
 
 # Get the list of audio files once and store it
@@ -122,8 +145,10 @@ with gr.Blocks() as demo:
     gr.Markdown('# Audio Navigation and Record App')
     gr.Markdown('Navigate through audio files or record your voice for analysis and practice.')
 
-    # Initialize current index as a state variable
+    # Initialize current index and reference transcriptions as state variables
     current_index = gr.State(0)
+    reference_phoneme_transcription = gr.State('')
+    reference_word_transcription = gr.State('')
 
     with gr.Row():
         with gr.Column():
@@ -135,11 +160,12 @@ with gr.Blocks() as demo:
             # Place buttons side by side
             with gr.Row():
                 prev_button = gr.Button('Previous')
-                play_button = gr.Button('Play and Analyze')
+                play_button = gr.Button('Analyze Reference')
                 next_button = gr.Button('Next')
 
             audio_player = gr.Audio(label='Audio', type='filepath')
-            transcription_text = gr.Textbox(label='Transcription from Service')
+            transcription_text_phonemes = gr.Textbox(label='Phoneme Transcription')
+            transcription_text_words = gr.Textbox(label='Word Transcription')
             plot_image = gr.Image(type='numpy', label='Waveform and Pitch')
 
             # Function to handle "Previous" button click
@@ -147,20 +173,23 @@ with gr.Blocks() as demo:
                 current_index = max(0, current_index - 1)
                 selected_file_value = audio_files[current_index]
                 results = process_audio_file(selected_file_value)
-                return [current_index, selected_file_value] + list(results)
+                file_path, transcription_phonemes, transcription_words, img_array = results
+                return [current_index, selected_file_value, file_path, transcription_phonemes, transcription_words, img_array, transcription_phonemes]
 
             # Function to handle "Next" button click
             def on_next_button_click(current_index):
                 current_index = min(len(audio_files) - 1, current_index + 1)
                 selected_file_value = audio_files[current_index]
                 results = process_audio_file(selected_file_value)
-                return [current_index, selected_file_value] + list(results)
+                file_path, transcription_phonemes, transcription_words, img_array = results
+                return [current_index, selected_file_value, file_path, transcription_phonemes, transcription_words, img_array, transcription_phonemes]
 
             # Function to handle "Play and Analyze" button click
             def on_play_button_click(selected_file_value):
                 current_index = audio_files.index(selected_file_value)
                 results = process_audio_file(selected_file_value)
-                return [current_index] + list(results)
+                file_path, transcription_phonemes, transcription_words, img_array = results
+                return [current_index, file_path, transcription_phonemes, transcription_words, img_array, transcription_phonemes]
 
             # Function to handle dropdown selection change
             def on_selected_file_change(selected_file_value):
@@ -171,19 +200,19 @@ with gr.Blocks() as demo:
             prev_button.click(
                 on_prev_button_click,
                 inputs=current_index,
-                outputs=[current_index, selected_file, audio_player, transcription_text, plot_image]
+                outputs=[current_index, selected_file, audio_player, transcription_text_phonemes, transcription_text_words, plot_image, reference_phoneme_transcription]
             )
 
             next_button.click(
                 on_next_button_click,
                 inputs=current_index,
-                outputs=[current_index, selected_file, audio_player, transcription_text, plot_image]
+                outputs=[current_index, selected_file, audio_player, transcription_text_phonemes, transcription_text_words, plot_image, reference_phoneme_transcription]
             )
 
             play_button.click(
                 on_play_button_click,
                 inputs=selected_file,
-                outputs=[current_index, audio_player, transcription_text, plot_image]
+                outputs=[current_index, audio_player, transcription_text_phonemes, transcription_text_words, plot_image, reference_phoneme_transcription]
             )
 
             selected_file.change(
@@ -199,17 +228,20 @@ with gr.Blocks() as demo:
             # Use 'type' parameter for gr.Audio
             record_audio = gr.Audio(type='numpy')
             analyze_button = gr.Button('Analyze Recording')
-            rec_transcription_text = gr.Textbox(label='Transcription from Service')
+            rec_transcription_text_phonemes = gr.Textbox(label='Phoneme Transcription')
+            rec_transcription_text_words = gr.Textbox(label='Word Transcription')
             rec_plot_image = gr.Image(type='numpy', label='Waveform and Pitch')
+            comparison_result_text = gr.HTML(label='Phonetic Transcription Comparison')
 
-            def on_analyze_button_click(audio):
-                results = process_recorded_audio(audio)
-                return results
+            def on_analyze_button_click(audio, reference_phoneme_transcription):
+                user_transcription_phonemes, user_transcription_words, img_array = process_recorded_audio(audio)
+                # Compare phonetic transcriptions
+                return user_transcription_phonemes, user_transcription_words, img_array
 
             analyze_button.click(
                 on_analyze_button_click,
-                inputs=record_audio,
-                outputs=[rec_transcription_text, rec_plot_image]
+                inputs=[record_audio, reference_phoneme_transcription],
+                outputs=[rec_transcription_text_phonemes, rec_transcription_text_words, rec_plot_image]
             )
 
 demo.launch()
