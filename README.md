@@ -2,10 +2,6 @@
 
 This app helps you practice pronunciation and reduce your accent by comparing your voice to reference audio. It provides phoneme-level feedback, transcription, and visualization to help improve your pronunciation.
 
-
-https://github.com/user-attachments/assets/0237fd39-1766-4204-b886-1abfe4366e0c
-
-
 ## Features
 
 ### 1. Reference Audio Playback
