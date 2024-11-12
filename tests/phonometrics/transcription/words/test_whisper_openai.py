@@ -1,7 +1,12 @@
 import os
+
 import pytest
+
 from dotenv import load_dotenv
+
 from phonometrics.transcription.words.whisper_openai import OpenAIWhisperModel
+
+
 load_dotenv()
 
 

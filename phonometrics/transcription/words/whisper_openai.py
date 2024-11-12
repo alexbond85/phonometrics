@@ -45,7 +45,6 @@ class OpenAIWhisperModel(WordsTranscriptionModel):
         with open(file_path, "rb") as audio_file:
             return self.transcribe_from_binary(audio_file)
 
-
     def transcribe_from_binary(self, audio_file: BinaryIO) -> Dict[str, str]:
         """
         Transcribes an audio file using OpenAI's Whisper API.

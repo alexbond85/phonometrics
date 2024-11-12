@@ -98,7 +98,7 @@ class WaveformPlotBuilder:
                 mid_time = (start + end) / 2
                 ax.text(
                     mid_time,
-                    y_position*(1 + 2*prob),
+                    y_position * (1 + 2 * prob),
                     char,
                     ha="center",
                     va="center",

@@ -33,6 +33,7 @@ async def transcribe_phonemes(file: UploadFile = File(...)):
     audio_waveform, sample_rate = await extract_audio(file)
     transcription = transcriber.transcribe_from_waveform(audio_waveform, sample_rate)
     logger.info("Phoneme transcription completed")
+    logger.info(f"Transcription: {transcription}")
     return JSONResponse(content=transcription)
 
 
@@ -46,6 +47,7 @@ async def transcribe_words(
     audio_waveform, sample_rate = await extract_audio(file)
     transcription = whisper_model.transcribe_from_waveform(audio_waveform, sample_rate)
     logger.info("Word transcription completed")
+    logger.info(f"Transcription: {transcription}")
     return JSONResponse(content=transcription)
 
 
@@ -58,6 +60,8 @@ async def transcribe_words(
     file_content = io.BytesIO(await file.read())
     file_content.name = file.filename
     transcription = whisper_model.transcribe_from_binary(file_content)
+    logger.info("Word transcription completed")
+    logger.info(f"Transcription: {transcription}")
     return JSONResponse(content=transcription)
 
 
@@ -81,7 +85,6 @@ def load_openai_whisper_model() -> OpenAIWhisperModel:
     load_dotenv()
     api_key = os.getenv("OPENAI_API_KEY")
     logger.info("Loaded OpenAI API key")
-    logger.info(f"API key: {api_key}")
     return OpenAIWhisperModel(api_key=api_key)
 
 
