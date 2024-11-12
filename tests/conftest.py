@@ -1,6 +1,7 @@
 from pathlib import Path
-import yaml
+
 import pytest
+import yaml
 
 
 @pytest.fixture
@@ -37,3 +38,11 @@ def word_transcription_service_url(tests_directory):
     with open(path_to_config, "r") as f:
         config = yaml.safe_load(f)
     return config["word_transcription_service_url"]
+
+
+@pytest.fixture
+def openai_word_transcription_service_url(tests_directory):
+    path_to_config = tests_directory / "../config.yaml"
+    with open(path_to_config, "r") as f:
+        config = yaml.safe_load(f)
+    return config["openai_word_transcription_service_url"]

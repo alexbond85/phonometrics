@@ -87,20 +87,22 @@ class WaveformPlotBuilder:
                 np.array(self.transcription_data["end_timestamps"]) / 1000
             )  # Convert to seconds
             probabilities = self.transcription_data["probabilities"]
-
+            y_position = (ax.get_ylim()[0] + ax.get_ylim()[1]) / 4
             # Add transcription rectangles and labels based on probability
             for char, start, end, prob in zip(
                 transcription, start_times, end_times, probabilities
             ):
+                if char == " ":
+                    continue
                 ax.axvspan(start, end, color=cm.viridis(prob), alpha=0.3)
                 mid_time = (start + end) / 2
                 ax.text(
                     mid_time,
-                    0,
+                    y_position,
                     char,
                     ha="center",
                     va="center",
-                    fontsize=12,
+                    fontsize=15,
                     alpha=0.9,
                     weight="bold",
                 )

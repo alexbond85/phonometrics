@@ -29,5 +29,5 @@ def test_transcription_model(sample_audio_data):
     # Further checks
     len_check = len(result["start_timestamps"])
     assert len_check == len(result["end_timestamps"]) == len(
-        result["probabilities"]
-    ), "Lengths of timestamps and probabilities do not match"
+        result["probabilities"]) == len(result['transcription']), \
+        "Lengths of timestamps and probabilities do not match"

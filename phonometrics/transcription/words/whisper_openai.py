@@ -1,11 +1,7 @@
-# unfinished
-import os
-
+from typing import BinaryIO
 from typing import Dict
 
 import openai  # type: ignore
-
-from dotenv import load_dotenv
 
 from phonometrics.transcription.words.model import WordsTranscriptionModel
 
@@ -25,12 +21,11 @@ class OpenAIWhisperModel(WordsTranscriptionModel):
         Transcribes an audio file using OpenAI's Whisper API.
     """
 
-    def __init__(self):
+    def __init__(self, api_key: str):
         """
         Initializes the OpenAIWhisperModel by creating an OpenAI API client.
         """
-        load_dotenv()
-        self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        self.client = openai.OpenAI(api_key=api_key)
 
     def transcribe_from_file(self, file_path: str) -> Dict[str, str]:
         """
@@ -48,7 +43,25 @@ class OpenAIWhisperModel(WordsTranscriptionModel):
             "transcription".
         """
         with open(file_path, "rb") as audio_file:
-            transcription = self.client.audio.transcriptions.create(
-                model="whisper-1", file=audio_file
-            ).text
-            return {"transcription": transcription}
+            return self.transcribe_from_binary(audio_file)
+
+
+    def transcribe_from_binary(self, audio_file: BinaryIO) -> Dict[str, str]:
+        """
+        Transcribes an audio file using OpenAI's Whisper API.
+
+        Parameters
+        ----------
+        audio_file : BinaryIO
+            Audio file bytes.
+
+        Returns
+        -------
+        Dict[str, str]
+            A dictionary containing the transcription text under the single key
+            "transcription".
+        """
+        transcription = self.client.audio.transcriptions.create(
+            model="whisper-1", file=audio_file
+        ).text
+        return {"transcription": transcription}

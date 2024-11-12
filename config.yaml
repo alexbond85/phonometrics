@@ -1,3 +1,5 @@
 transcription_service_url: "http://localhost:8000/transcribe/phonemes"
 word_transcription_service_url: "http://localhost:8000/transcribe/words"
+openai_word_transcription_service_url: "http://localhost:8000/transcribe/words/openai"
+
 audio_folder: "audio_files"

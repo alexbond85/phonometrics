@@ -1,5 +1,7 @@
-from phonometrics.transcription.words.whisper_local import LocalWhisperModel
 import torchaudio
+
+from phonometrics.transcription.words.whisper_local import LocalWhisperModel
+
 
 def test_local_whisper_model(sample_audio_data):
     # Initialize the LocalWhisperModel
