@@ -197,7 +197,7 @@ with gr.Blocks() as demo:
 
         with gr.Column():
             gr.Markdown('## 2. Record Your Voice')
-            gr.Markdown("Click the 'Record' button to record your voice.")
+            # gr.Markdown("Click the 'Record' button to record your voice.")
 
             # Use 'type' parameter for gr.Audio
             record_audio = gr.Audio(type='numpy')
