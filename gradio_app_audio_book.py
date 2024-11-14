@@ -2,7 +2,6 @@ import gradio as gr
 from io import BytesIO
 from pydub import AudioSegment
 import os
-import requests
 
 def parse_srt_file(srt_file_path):
     subtitles = []
@@ -48,7 +47,7 @@ def get_audio_chunk_and_phrase(index):
     index = int(index)
     if index < 1 or index > len(subtitles):
         print(f"Invalid index: {index}")
-        return "", None, ""  # Return empty text, no audio, empty transcription
+        return "", None  # Return empty text, no audio
 
     sub = subtitles[index - 1]
     start_time = sub['start_time'] * 1000  # Convert to milliseconds
@@ -60,7 +59,7 @@ def get_audio_chunk_and_phrase(index):
             audio_bytes = audio_chunks[index]
         else:
             if audio is None:
-                return sub['text'], None, ""
+                return sub['text'], None
 
             # Extract the chunk
             chunk = audio[start_time:end_time]
@@ -73,32 +72,11 @@ def get_audio_chunk_and_phrase(index):
             # Store audio_bytes for future use
             audio_chunks[index] = audio_bytes
 
-        # Send audio chunk to the endpoint and get transcription
-        transcription = "dummy" #transcribe_audio(audio_bytes)
-
-        return f"Phrase {index}: {sub['text']}", audio_bytes, transcription  # Return text, audio, transcription
+        # Return text and audio_bytes
+        return f"Phrase {index}: {sub['text']}", audio_bytes  # Return text, audio
     except Exception as e:
         print(f"Error processing audio chunk: {e}")
-        return sub['text'], None, ""
-
-def transcribe_audio(audio_bytes):
-    try:
-        audio_buffer = BytesIO(audio_bytes)
-        # Prepare the files dictionary for the POST request
-        files = {
-            'file': ('audio.mp3', audio_buffer, 'audio/mpeg')
-        }
-        # Send the POST request to the endpoint
-        response = requests.post('http://localhost:8000/transcribe/phonemes', files=files)
-        response.raise_for_status()  # Raise an exception for HTTP errors
-
-        # Parse the JSON response
-        json_response = response.json()
-        transcription = json_response.get('transcription', '')
-        return transcription
-    except Exception as e:
-        print(f"Error in transcribe_audio: {e}")
-        return "Error in transcription"
+        return sub['text'], None
 
 def increment_index(current_index):
     new_index = int(current_index) + 1
@@ -137,31 +115,38 @@ with gr.Blocks() as demo:
     with gr.Row():
         prev_button = gr.Button("Previous")
         next_button = gr.Button("Next")
-        phrase_index = gr.Number(value=1, label="Phrase Number", interactive=True)
 
+    # Set continuous_update=False to prevent continuous loading
     phrase_slider = gr.Slider(1, len(subtitles), value=1, step=1, label="Select Phrase", interactive=True)
 
-    # Specify type='bytes' and format='mp3' for the audio component
-    audio_output = gr.Audio(label="Audio Playback", elem_id="audio_output", format='mp3')
+    # Use gr.State to store the phrase index internally
+    phrase_index = gr.State(value=1)
 
-    # Add a component to display the transcription
-    transcription_display = gr.Textbox(label="Transcription", interactive=False)
+    # Set autoplay=True for automatic audio playback
+    audio_output = gr.Audio(label="Audio Playback", elem_id="audio_output", format='mp3', autoplay=True)
 
-    # Update phrase, audio, and transcription when index changes
+    # Update phrase and audio when index changes
     def update_phrase_and_audio(index):
-        text, audio, transcription = get_audio_chunk_and_phrase(index)
-        return text, audio, transcription, index, index
+        text, audio_bytes = get_audio_chunk_and_phrase(index)
+        return text, audio_bytes, index, index
 
     # Connect components
-    outputs = [phrase_display, audio_output, transcription_display, phrase_index, phrase_slider]
+    outputs = [phrase_display, audio_output, phrase_index, phrase_slider]
 
-    phrase_index.change(update_phrase_and_audio, inputs=phrase_index, outputs=outputs)
+    # Update phrase and audio when slider value changes
     phrase_slider.change(update_phrase_and_audio, inputs=phrase_slider, outputs=outputs)
 
-    prev_button.click(fn=lambda idx: decrement_index(idx), inputs=phrase_index, outputs=phrase_index)
-    next_button.click(fn=lambda idx: increment_index(idx), inputs=phrase_index, outputs=phrase_index)
+    # Functions to handle button clicks
+    def decrement_and_update(idx):
+        new_index = decrement_index(idx)
+        return update_phrase_and_audio(new_index)
 
-    # Automatically update when prev/next buttons are clicked
-    phrase_index.change(update_phrase_and_audio, inputs=phrase_index, outputs=outputs)
+    def increment_and_update(idx):
+        new_index = increment_index(idx)
+        return update_phrase_and_audio(new_index)
+
+    # Bind buttons to functions
+    prev_button.click(fn=decrement_and_update, inputs=phrase_index, outputs=outputs)
+    next_button.click(fn=increment_and_update, inputs=phrase_index, outputs=outputs)
 
 demo.launch(server_name="0.0.0.0", server_port=7860)
