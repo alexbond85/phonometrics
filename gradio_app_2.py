@@ -53,11 +53,12 @@ def get_audio_chunk_and_phrase(index):
 
     sub = subtitles[index - 1]
     start_time = sub['start_time'] * 1000  # Convert to milliseconds
-    end_time = (sub['end_time']-1) * 1000
+    end_time = sub['end_time'] * 1000
 
     try:
         # Load the audio file
         audio_file_path = os.path.join('ENFR-F1-GSR-DAY101.mp3')
+        audio_file_path = os.path.join('premiere-partie.mp3')
         if not os.path.exists(audio_file_path):
             print(f"Audio file not found at path: {audio_file_path}")
             return sub['text'], None, ""
@@ -76,7 +77,7 @@ def get_audio_chunk_and_phrase(index):
         audio_chunks[index] = audio_buffer  # Store the BytesIO object
 
         # Send audio chunk to the endpoint and get transcription
-        transcription = transcribe_audio(audio_buffer)
+        transcription = {"transcription": "dummy"}#transcribe_audio(audio_buffer)
 
         return f"Phrase {index}: {sub['text']}", audio_bytes, transcription  # Return text, audio, transcription
     except Exception as e:
@@ -115,6 +116,8 @@ def decrement_index(current_index):
 
 # Read subtitles from the file
 srt_file_path = 'ENFR-F1-GSR-DAY101.srt'
+srt_file_path = 'premiere-partie.srt'
+
 subtitles = parse_srt_file(srt_file_path)
 
 if not subtitles:
@@ -156,4 +159,4 @@ with gr.Blocks() as demo:
     # Automatically update when prev/next buttons are clicked
     phrase_index.change(update_phrase_and_audio, inputs=phrase_index, outputs=outputs)
 
-demo.launch()
+demo.launch(server_name="0.0.0.0", server_port=7860)
