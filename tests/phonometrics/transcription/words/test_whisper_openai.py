@@ -30,7 +30,7 @@ def test_openai_whisper_model_srt(path_to_uncut_audio):
     # Transcribe the audio file
     transcription = model.transcribe_from_file_to_srt(path_to_file)
     # save the transcription to a file
-    with open("../../../../premiere-partie.srt", "w") as f:
+    with open("../../../../02-Chapitre_2.srt", "w") as f:
         f.write(transcription["transcription"])
     # Check that the transcription matches the expected transcription
     # expected_transcription = sample_audio_data["transcription_words"]
