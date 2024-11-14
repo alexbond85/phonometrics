@@ -2,13 +2,15 @@
 
 This app helps you practice pronunciation and reduce your accent by comparing your voice to reference audio. It provides phoneme-level feedback, transcription, and visualization to help improve your pronunciation.
 
+![demo_gif_small](https://github.com/user-attachments/assets/15009414-7fa6-471c-8bfa-2569cc11a38b)
+
 ## Features
 
 ### 1. Reference Audio Playback
 
 - **Select and Play**: Choose a reference audio file to hear native pronunciation.
 - **Transcriptions**:
-  - **Phoneme Transcription**: Breaks down each sound to guide accurate pronunciation.
+  - **Phoneme Transcription**: Breaks down each sound to guide pronunciation.
   - **Word Transcription**: Shows the full text for context.
 
 ### 2. Pronunciation Analysis
@@ -30,12 +32,12 @@ This app helps you practice pronunciation and reduce your accent by comparing yo
 </p>
 
 **Left**: Reference audio displaying native pronunciation.  
-**Right**: User recording with a pronunciation issue on the nasal sound **/ɑ̃/**. Notice the difference in waveform and pitch alignment, indicating difficulty with the nasal quality in this sound.
+**Right**: User recording with a pronunciation issue on the nasal sound **/ɑ̃/**. Notice the difference in waveform and pitch alignment.
 
 
 ## Transcription Models
 
-This application leverages advanced transcription models to analyze and compare audio recordings:
+This application uses two transcription models to analyze and compare audio recordings:
 
 - **Phrase Transcription**: OpenAI's Whisper model for full sentences transcriptions of audio inputs.
 
