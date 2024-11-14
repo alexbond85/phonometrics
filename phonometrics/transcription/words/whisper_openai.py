@@ -64,3 +64,25 @@ class OpenAIWhisperModel(WordsTranscriptionModel):
             model="whisper-1", file=audio_file
         ).text
         return {"transcription": transcription}
+
+
+    def transcribe_from_file_to_srt(self, file_path: str) -> Dict[str, str]:
+        """
+        Transcribes an audio file using OpenAI's Whisper API.
+
+        Parameters
+        ----------
+        file_path : str
+            Path to the audio file.
+
+        Returns
+        -------
+        Dict[str, str]
+            A dictionary containing the transcription text under the single key
+            "transcription".
+        """
+        with open(file_path, "rb") as audio_file:
+            transcription = self.client.audio.transcriptions.create(
+                model="whisper-1", file=audio_file, response_format="srt"
+            )
+            return {"transcription": transcription}

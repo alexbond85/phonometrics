@@ -20,6 +20,13 @@ def sample_audio_data():
 
 
 @pytest.fixture
+def path_to_uncut_audio():
+    current_directory = Path(__file__).parent
+    path_to_input_file = current_directory / "data" / "ENFR-F1-GSR-DAY101.mp3"
+    return path_to_input_file
+
+
+@pytest.fixture
 def tests_directory():
     return Path(__file__).parent
 
