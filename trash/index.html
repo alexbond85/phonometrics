@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 and F2 Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #chart-container {
+            width: 100%;
+            max-width: 800px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>F1 and F2 Visualization</h1>
+    <input type="file" id="audioFile" accept="audio/mp3" />
+    <button id="uploadButton">Upload and Visualize</button>
+    <audio id="audioPlayer" controls style="width: 100%; margin-top: 20px;"></audio>
+    <div id="chart-container">
+        <canvas id="formantChart"></canvas>
+    </div>
+
+    <script>
+    const uploadButton = document.getElementById("uploadButton");
+    const audioPlayer = document.getElementById("audioPlayer");
+    const chartContainer = document.getElementById("formantChart");
+    let chart;
+    let formantData = null;
+
+    uploadButton.addEventListener("click", async () => {
+        const fileInput = document.getElementById("audioFile");
+        if (!fileInput.files[0]) {
+            alert("Please select a file!");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        const response = await fetch("/upload", {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) {
+            alert("Failed to upload file.");
+            return;
+        }
+
+        formantData = await response.json();
+        const fileName = fileInput.files[0].name;
+        audioPlayer.src = `/audio/${fileName}`;
+
+        if (chart) {
+            chart.destroy();
+        }
+
+        chart = new Chart(chartContainer, {
+            type: "line",
+            data: {
+                labels: formantData.times,
+                datasets: [
+                    {
+                        label: "F1 (Hz)",
+                        data: [],
+                        borderColor: "blue",
+                        fill: false,
+                    },
+                    {
+                        label: "F2 (Hz)",
+                        data: [],
+                        borderColor: "orange",
+                        fill: false,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Time (s)",
+                        },
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: "Frequency (Hz)",
+                        },
+                    },
+                },
+            },
+        });
+
+        // Enable audio playback and sync visualization
+        syncAudioAndChart();
+    });
+
+    function syncAudioAndChart() {
+        audioPlayer.addEventListener("timeupdate", () => {
+            if (!formantData) return;
+
+            const currentTime = audioPlayer.currentTime; // Current playback time in seconds
+
+            // Find the closest timestamp in formantData.times
+            const closestIndex = formantData.times.findIndex((t) => t >= currentTime);
+
+            if (closestIndex >= 0) {
+                // Update the chart dynamically
+                chart.data.datasets[0].data = formantData.f1.slice(0, closestIndex);
+                chart.data.datasets[1].data = formantData.f2.slice(0, closestIndex);
+                chart.update("none"); // Efficient update without animation
+            }
+        });
+    }
+</script>
+</body>
+</html>
